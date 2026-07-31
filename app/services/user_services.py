@@ -26,7 +26,8 @@ def get_all_users(db: Session) -> list[User]:
 
 
 def get_user_by_id(db: Session, user_id: int) -> User | None:
-    return db.get(User, user_id)
+    stmt = select(User).where(User.id == user_id)
+    return db.scalars(stmt).first()
 
 
 def delete_user_by_id(db: Session, user_item: User):

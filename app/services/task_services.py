@@ -1,4 +1,6 @@
-from sqlalchemy import asc, desc, or_, select
+import math
+
+from sqlalchemy import asc, desc, func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -42,7 +44,7 @@ def get_all_tasks(
     page: int = 1,
     size: int = 10,
     search: str | None = None,
-) -> list[Task]:
+) -> tuple[list[Task], int, int]:
     tasks_offset = (page - 1) * size
     stmt = select(Task)
 
@@ -75,13 +77,22 @@ def get_all_tasks(
     else:
         stmt = stmt.order_by(asc(Task.id))
 
+    count_stmt = select(func.count()).select_from(stmt.subquery())
+
+    total = db.scalar(count_stmt) or 0
+
     stmt = stmt.offset(tasks_offset).limit(size)
 
-    return list(db.scalars(stmt))
+    items: list[Task] = list(db.scalars(stmt).all())
+
+    total_pages = math.ceil(total / size)
+
+    return items, total, total_pages
 
 
 def get_task_by_id(db: Session, task_id: int) -> Task | None:
-    return db.get(Task, task_id)
+    stmt = select(Task).where(Task.id == task_id)
+    return db.scalars(stmt).first()
 
 
 def update_task_by_id(

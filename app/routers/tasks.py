@@ -6,7 +6,12 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.enums.tasks_enums import Status, TaskSortField, TaskSortOrder
-from app.schemas.task_schemas import TaskCreate, TaskResponse, TaskUpdate
+from app.schemas.task_schemas import (
+    TaskCreate,
+    TaskListResponse,
+    TaskResponse,
+    TaskUpdate,
+)
 from app.services.task_services import (
     create_task,
     delete_task_by_id,
@@ -36,7 +41,7 @@ def create_task_route(task_data: TaskCreate, db: DbSession):
         )
 
 
-@router.get("/", response_model=list[TaskResponse])
+@router.get("/", response_model=TaskListResponse)
 def get_all_tasks_route(
     db: DbSession,
     status: Status | None = None,
@@ -64,7 +69,7 @@ def get_all_tasks_route(
         ),
     ] = None,
 ):
-    return get_all_tasks(
+    items, total, total_pages = get_all_tasks(
         db=db,
         status=status,
         priority=priority,
@@ -75,6 +80,14 @@ def get_all_tasks_route(
         size=size,
         search=search,
     )
+
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "size": size,
+        "total_pages": total_pages,
+    }
 
 
 @router.get("/{task_id}", response_model=TaskResponse, status_code=status.HTTP_200_OK)

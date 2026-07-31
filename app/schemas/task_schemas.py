@@ -23,9 +23,17 @@ class TaskUpdate(BaseModel):
 
 
 class TaskResponse(TaskCreate):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     status: Status
     created_at: datetime
     updated_at: datetime
 
-    model_config = ConfigDict(from_attributes=True)
+
+class TaskListResponse(BaseModel):
+    items: list[TaskResponse]
+    total: int
+    page: int
+    size: int
+    total_pages: int
