@@ -1,10 +1,11 @@
-from sqlalchemy import func, ForeignKey, CheckConstraint, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from app.utils.helpers import utc_now
+from sqlalchemy import CheckConstraint, ForeignKey, String, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.database import Base
+from app.utils.helpers import utc_now
 
 if TYPE_CHECKING:
     from app.models.users_model import User
@@ -33,11 +34,11 @@ class Task(Base):
         default=utc_now, server_default=func.now(), onupdate=utc_now
     )
 
-    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
-
-    owner: Mapped["User"] = relationship(
-        back_populates="tasks"
+    owner_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True
     )
+
+    owner: Mapped["User"] = relationship(back_populates="tasks")
 
     __table_args__ = (
         CheckConstraint(

@@ -1,10 +1,11 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import func, String
+from sqlalchemy import String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from datetime import datetime
-from app.utils.helpers import utc_now
+
 from app.database import Base
+from app.utils.helpers import utc_now
 
 if TYPE_CHECKING:
     from app.models.tasks_model import Task
@@ -28,6 +29,5 @@ class User(Base):
     )
 
     tasks: Mapped[list["Task"]] = relationship(
-        back_populates="owner",
-        cascade="all, delete-orphan"
+        back_populates="owner", cascade="all, delete-orphan"
     )
