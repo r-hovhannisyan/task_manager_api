@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter, Depends, status, HTTPException
 
 from app.database import get_db
-from app.schemas.task_schemas import TaskResponse, TaskCreate, TaskUpdate
+from app.schemas.task_schemas import TaskResponse, TaskCreate, TaskUpdate, Status
 from app.services.task_services import delete_task_by_id, get_task_by_id, get_all_tasks, update_task_by_id, create_task
 
 router = APIRouter(
@@ -31,8 +31,13 @@ def create_task_route(task_data: TaskCreate ,db:DbSession):
         )
 
 @router.get("/", response_model=list[TaskResponse])
-def get_all_tasks_route(db: DbSession):
-    return get_all_tasks(db)
+def get_all_tasks_route(
+        db: DbSession,
+        status: Status | None = None,
+        priority: int | None = None,
+        owner_id: int | None = None
+):
+    return get_all_tasks(db=db, status=status, priority=priority, owner_id=owner_id)
 
 @router.get("/{task_id}", response_model=TaskResponse, status_code=status.HTTP_200_OK)
 def get_task_by_id_route(task_id: int, db: DbSession):

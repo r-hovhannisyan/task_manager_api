@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from app.models import Task
-from app.schemas.task_schemas import TaskCreate, TaskUpdate
+from app.schemas.task_schemas import TaskCreate, TaskUpdate, Status
 from app.services.user_services import get_user_by_id
 
 
@@ -23,8 +23,23 @@ def create_task(db: Session, task_data: TaskCreate) -> Task | None:
         db.rollback()
         raise
 
-def get_all_tasks(db: Session) -> list[Task]:
+def get_all_tasks(
+        db: Session,
+        status: Status | None = None,
+        priority: int | None = None,
+        owner_id: int | None = None
+) -> list[Task]:
     stmt = select(Task)
+
+    if status is not None:
+        stmt = stmt.where(Task.status == status)
+
+    if priority is not None:
+        stmt = stmt.where(Task.priority == priority)
+
+    if owner_id is not None:
+        stmt = stmt.where(Task.owner_id == owner_id)
+
     return list(db.scalars(stmt))
 
 def get_task_by_id(db: Session, task_id: int) -> Task | None:
@@ -60,4 +75,4 @@ def delete_task_by_id(db: Session, task_item: Task) -> None:
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise 
+        raise

@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
+from app.schemas.task_schemas import TaskResponse
+
 
 class UserCreate(BaseModel):
     username: str = Field(
@@ -21,4 +23,5 @@ class UserCreate(BaseModel):
 class UserResponse(UserCreate):
     id: int
     created_at: datetime
+    tasks: list[TaskResponse]
     model_config = ConfigDict(from_attributes=True)

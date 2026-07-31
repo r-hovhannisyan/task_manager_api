@@ -44,6 +44,7 @@ class TaskUpdate(BaseModel):
         le=5
     )
     due_date: datetime | None = None
+    owner_id: int | None = None
 
 
 class TaskResponse(TaskCreate):
